@@ -57,7 +57,7 @@ const url =
 mongoose
   .connect(url)
   .then(() => {
-    app.listen(3005);
+    app.listen(env.DB.PORT);
   })
   .catch((err) => {
     console.log(err);

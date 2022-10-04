@@ -6,7 +6,7 @@ const Expiry_date = require("../middleware/expiration");
 const Painting = require("../models/painting");
 const User = require("../models/user");
 const Sess = require("../models/sess");
-const date = require("../middleware/get_date");
+const { get_time} = require("../middleware/get_date");
 const user = require("../models/user");
 
 const fetchPainting = async (req, res, next) => {
@@ -105,7 +105,7 @@ const createPainting = async (req, res, next) => {
     creator: user.creator,
     name: name,
     created_date,
-    upload_date: date(),
+    upload_date: get_time(),
     category,
     content,
     image: req.files.image[0].path,

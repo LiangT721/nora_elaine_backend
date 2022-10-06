@@ -16,8 +16,10 @@ const current_date = () => {
 
 const get_time = () => {
   let time = new Date();
+  console.log(time)
   return time
 }
+
 
 exports.current_date = current_date;
 exports.get_time = get_time;

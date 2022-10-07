@@ -15,7 +15,6 @@ const paintingSchema = new Schema({
   imagePreview:{ type: String, required: true},
   key_word_1:{ type: String, required: false},
   key_word_2:{ type: String, required: false},
-  key_word_3:{ type: String, required: false},
 });
 
 module.exports = mongoose.model('Painting', paintingSchema);

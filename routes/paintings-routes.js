@@ -5,6 +5,11 @@ const { check } = require("express-validator");
 
 const router = Router();
 
+router.get("/", paintingsControllers.fetchPainting);
+router.get("/search", paintingsControllers.fetchPaintingByCondition)
+router.get("/keyword", paintingsControllers.fetchKeywordGroup)
+router.get("/:uid", paintingsControllers.fetchPaintingByUser)
+
 router.post(
   "/",
   // fileUpload.single("image"),
@@ -22,6 +27,5 @@ router.post(
   ],
   paintingsControllers.createPainting
 );
-router.get("/", paintingsControllers.fetchPainting);
 
 module.exports = router;

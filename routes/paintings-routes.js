@@ -6,7 +6,7 @@ const { check } = require("express-validator");
 const router = Router();
 
 router.get("/", paintingsControllers.fetchPainting);
-router.get("/search", paintingsControllers.fetchPaintingByCondition)
+router.get("/search/:content", paintingsControllers.fetchPaintingByCondition)
 router.get("/keyword", paintingsControllers.fetchKeywordGroup)
 router.get("/:uid", paintingsControllers.fetchPaintingByUser)
 

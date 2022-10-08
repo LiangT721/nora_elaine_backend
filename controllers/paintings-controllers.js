@@ -42,7 +42,7 @@ const fetchPainting = async (req, res, next) => {
 const fetchPaintingByUser = async (req, res, next) => {
   console.log("start fetch by user");
   const param = req.params.uid;
-  const paramArr = param.split("|");
+  const paramArr = param.split("^");
   const userId = paramArr[0];
   const skip = paramArr[1];
   console.log(skip);
@@ -51,7 +51,7 @@ const fetchPaintingByUser = async (req, res, next) => {
   try {
     paintinglist = await Painting.find({ user: userId })
       .sort({ created_date: -1, _id: -1 })
-      .limit(5)
+      .limit(15)
       .skip(skip);
   } catch (err) {
     console.log(err);
@@ -61,8 +61,10 @@ const fetchPaintingByUser = async (req, res, next) => {
 };
 
 const fetchPaintingByCondition = async (req, res, next) => {
-  console.log("start fetch by condition");
-  const { user, condition } = req.body;
+  const param = req.params.content;
+  const paramArr = param.split("^");
+  const user = paramArr[0];
+  const condition = paramArr[1]
   console.log(user);
   console.log(condition);
   let painitingList;

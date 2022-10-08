@@ -41,8 +41,10 @@ const fetchPainting = async (req, res, next) => {
 };
 const fetchPaintingByUser = async (req, res, next) => {
   console.log("start fetch by user");
-  const userId = req.params.uid;
-  const { skip } = req.body;
+  const param = req.params.uid;
+  const paramArr = param.split("|");
+  const userId = paramArr[0];
+  const skip = paramArr[1];
   console.log(skip);
 
   let paintinglist;
@@ -105,7 +107,7 @@ const fetchKeywordGroup = async (req, res, next) => {
       { $group: { _id: "$content", count: { $count: {} } } }
     ]);
     let list = [...keyword1, ...keyword2, ...name, ...content];
-    keywordList = removeDuplicate(list)
+    keywordList = removeDuplicate(list);
     console.log(keywordList);
     res.status(200).json({ keywordList: keywordList });
   } catch (err) {
@@ -224,10 +226,10 @@ const removeDuplicate = (arr) => {
         include = true;
       }
     });
-    !include && el._id!=="" && list.push(el);
+    !include && el._id !== "" && list.push(el);
   });
-  list.sort((a,b) => b.count - a.count)
-  return list.slice(0,15);
+  list.sort((a, b) => b.count - a.count);
+  return list.slice(0, 15);
 };
 
 exports.createPainting = createPainting;

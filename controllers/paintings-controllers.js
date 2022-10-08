@@ -60,11 +60,36 @@ const fetchPaintingByUser = async (req, res, next) => {
   res.status(200).json({ paintingList: paintinglist });
 };
 
+const fetchPaintingByCategory = async (req, res, next) => {
+  const param = req.params.content;
+  const paramArr = param.split("^");
+  const user = paramArr[0];
+  const condition = paramArr[1];
+  console.log(user);
+  console.log(condition);
+  let painitingList;
+  if (user) {
+    console.log("try")
+    try {
+      painitingList = await Painting.find({
+        $and: [
+          { user: user },
+          { category: { $regex: condition, $options: "<options>" } }
+        ]
+      });
+      // painitingList = await Painting.find({ name:  { $regex: condition, $options: '<options>' } });
+    } catch (err) {
+      console.log(err);
+    }
+    res.status(200).json({ paintingList: painitingList });
+  }
+};
+
 const fetchPaintingByCondition = async (req, res, next) => {
   const param = req.params.content;
   const paramArr = param.split("^");
   const user = paramArr[0];
-  const condition = paramArr[1]
+  const condition = paramArr[1];
   console.log(user);
   console.log(condition);
   let painitingList;
@@ -239,3 +264,4 @@ exports.fetchPainting = fetchPainting;
 exports.fetchPaintingByUser = fetchPaintingByUser;
 exports.fetchPaintingByCondition = fetchPaintingByCondition;
 exports.fetchKeywordGroup = fetchKeywordGroup;
+exports.fetchPaintingByCategory = fetchPaintingByCategory;

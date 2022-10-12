@@ -24,15 +24,15 @@ const fetchPainting = async (req, res, next) => {
 
   try {
     lists.nora = await Painting.find({ user: users[0].id })
-      .limit(20)
-      .sort({ _id: -1 });
+      .limit(5)
+      .sort({ created_date: -1 });
   } catch (err) {
     console.log(err);
   }
   try {
     lists.elaine = await Painting.find({ user: users[1].id })
-      .limit(20)
-      .sort({ _id: -1 });
+      .limit(5)
+      .sort({ created_date: -1 });
   } catch (err) {
     console.log(err);
   }

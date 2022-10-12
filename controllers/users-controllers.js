@@ -44,6 +44,7 @@ const createUser = async (req, res, next) => {
     password: hash,
     birth,
     icon: req.file.path,
+    // icon: "temp",
     intro
   });
   // console.log(createdUser)

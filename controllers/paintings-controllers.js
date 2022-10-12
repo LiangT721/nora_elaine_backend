@@ -7,6 +7,7 @@ const Painting = require("../models/painting");
 const User = require("../models/user");
 const Sess = require("../models/sess");
 const { get_time } = require("../middleware/get_date");
+const user = require("../models/user");
 
 const fetchPainting = async (req, res, next) => {
   console.log("start fetch");
@@ -213,6 +214,8 @@ const createPainting = async (req, res, next) => {
     upload_date: get_time(),
     category,
     content,
+    // image: 111,
+    // imagePreview: 222,
     image: req.files.image[0].path,
     imagePreview: req.files.imagePreview[0].path,
     key_word_1,
@@ -242,6 +245,80 @@ const createPainting = async (req, res, next) => {
   }
   res.status(201).json({ painting: createdPainting });
 };
+const updatePainting = async (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    next(new HttpError("Invalid inputs passed, please check your data", 422));
+  }
+
+  const {
+    token,
+    userid,
+    id,
+    name,
+    category,
+    content,
+    key_word_1,
+    key_word_2
+  } = req.body;
+  // console.log(req.body);
+
+  let session;
+  try {
+    console.log("start finded session");
+    session = await Sess.findOne({ sess: token });
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, could not fetch session",
+      500
+    );
+    return next(error);
+  }
+
+  if (
+    session === null ||
+    !Expiry_date.compare_expiry_date(session.expiry_date)
+  ) {
+    const error = new HttpError("session is not exist", 404);
+    return next(error);
+  }
+
+
+  let painting;
+  try{
+    painting = await Painting.findById(id)
+  }catch(err){
+    const error = new HttpErrpr(
+      "Something went wrong, Could not find painting.",
+      500
+    );
+    return next(error)
+  }
+
+  if(painting.user.toString() !== userid){
+    const error = new HttpError('You are not allowed to edit this painting.', 401);
+    return next(error)
+  }
+
+  painting.name = name
+  painting.category = category
+  painting.content = content
+  painting.key_word_1 = key_word_1
+  painting.key_word_2 = key_word_2
+
+  try {
+    console.log("start save");
+    await painting.save();
+  } catch (err) {
+    const error = new HttpError(
+      "update painting failed, please try again.",
+      500
+    );
+    return next(error);
+  }
+  res.status(201).json({ painting: painting });
+};
 
 const removeDuplicate = (arr) => {
   let list = [];
@@ -265,3 +342,4 @@ exports.fetchPaintingByUser = fetchPaintingByUser;
 exports.fetchPaintingByCondition = fetchPaintingByCondition;
 exports.fetchKeywordGroup = fetchKeywordGroup;
 exports.fetchPaintingByCategory = fetchPaintingByCategory;
+exports.updatePainting = updatePainting;

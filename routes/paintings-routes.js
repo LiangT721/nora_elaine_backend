@@ -10,10 +10,10 @@ router.get("/search/:content", paintingsControllers.fetchPaintingByCondition)
 router.get("/category/:content", paintingsControllers.fetchPaintingByCategory)
 router.get("/keyword", paintingsControllers.fetchKeywordGroup)
 router.get("/:uid", paintingsControllers.fetchPaintingByUser)
+router.patch("/", paintingsControllers.updatePainting)
 
 router.post(
   "/",
-  // fileUpload.single("image"),
   fileUpload.fields([
     {name:"image", maxCount:1},
     {name:"imagePreview", maxCount:1}

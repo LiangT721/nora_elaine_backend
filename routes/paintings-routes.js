@@ -11,6 +11,7 @@ router.get("/category/:content", paintingsControllers.fetchPaintingByCategory)
 router.get("/keyword", paintingsControllers.fetchKeywordGroup)
 router.get("/:uid", paintingsControllers.fetchPaintingByUser)
 router.patch("/", paintingsControllers.updatePainting)
+router.delete("/", paintingsControllers.deletePainting)
 
 router.post(
   "/",

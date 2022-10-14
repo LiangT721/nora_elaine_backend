@@ -9,6 +9,7 @@ const User = require("../models/user");
 const Sess = require("../models/sess");
 const { get_time } = require("../middleware/get_date");
 const bcrypt = require("bcrypt");
+const { ObjectId } = require("mongodb");
 
 const fetchPainting = async (req, res, next) => {
   console.log("start fetch");
@@ -67,8 +68,11 @@ const fetchPaintingByCategory = async (req, res, next) => {
   const paramArr = param.split("^");
   const user = paramArr[0];
   const condition = paramArr[1];
+  const skip = paramArr[2];
   console.log(user);
   console.log(condition);
+  console.log(skip);
+  const limit = skip ? 5 : 100;
   let painitingList;
   if (user) {
     console.log("try");
@@ -78,8 +82,10 @@ const fetchPaintingByCategory = async (req, res, next) => {
           { user: user },
           { category: { $regex: condition, $options: "<options>" } }
         ]
-      });
-      // painitingList = await Painting.find({ name:  { $regex: condition, $options: '<options>' } });
+      })
+        .sort({ created_date: -1, _id: -1 })
+        .limit(limit)
+        .skip(skip);
     } catch (err) {
       console.log(err);
     }
@@ -92,8 +98,11 @@ const fetchPaintingByCondition = async (req, res, next) => {
   const paramArr = param.split("^");
   const user = paramArr[0];
   const condition = paramArr[1];
+  const skip = paramArr[2];
   console.log(user);
   console.log(condition);
+  console.log(skip);
+  const limit = skip ? 5 : 100;
   let painitingList;
   if (user) {
     try {
@@ -109,7 +118,10 @@ const fetchPaintingByCondition = async (req, res, next) => {
             ]
           }
         ]
-      });
+      })
+        .sort({ created_date: -1, _id: -1 })
+        .limit(limit)
+        .skip(skip);
       // painitingList = await Painting.find({ name:  { $regex: condition, $options: '<options>' } });
       console.log(painitingList);
     } catch (err) {
@@ -121,18 +133,23 @@ const fetchPaintingByCondition = async (req, res, next) => {
 
 const fetchKeywordGroup = async (req, res, next) => {
   let keywordList = [];
-
+  const uid = req.params.uid;
+  console.log(uid);
   try {
     let keyword1 = await Painting.aggregate([
+      { $match: { user: ObjectId(uid) } },
       { $group: { _id: "$key_word_1", count: { $count: {} } } }
     ]);
     let keyword2 = await Painting.aggregate([
+      { $match: { user: ObjectId(uid) } },
       { $group: { _id: "$key_word_2", count: { $count: {} } } }
     ]);
     let name = await Painting.aggregate([
+      { $match: { user: ObjectId(uid) } },
       { $group: { _id: "$name", count: { $count: {} } } }
     ]);
     let content = await Painting.aggregate([
+      { $match: { user: ObjectId(uid) } },
       { $group: { _id: "$content", count: { $count: {} } } }
     ]);
     let list = [...keyword1, ...keyword2, ...name, ...content];
@@ -427,7 +444,7 @@ const removeDuplicate = (arr) => {
     !include && el._id !== "" && list.push(el);
   });
   list.sort((a, b) => b.count - a.count);
-  return list.slice(0, 15);
+  return list.slice(0, 8);
 };
 
 exports.createPainting = createPainting;

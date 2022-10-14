@@ -8,7 +8,7 @@ const router = Router();
 router.get("/", paintingsControllers.fetchPainting);
 router.get("/search/:content", paintingsControllers.fetchPaintingByCondition)
 router.get("/category/:content", paintingsControllers.fetchPaintingByCategory)
-router.get("/keyword", paintingsControllers.fetchKeywordGroup)
+router.get("/keyword/:uid", paintingsControllers.fetchKeywordGroup)
 router.get("/:uid", paintingsControllers.fetchPaintingByUser)
 router.patch("/", paintingsControllers.updatePainting)
 router.delete("/", paintingsControllers.deletePainting)

@@ -42,6 +42,27 @@ const fetchPainting = async (req, res, next) => {
 
   res.json({ lists: lists });
 };
+
+const fetchAllPlainting = async (req, res, next) => {
+  console.log("start fetch all paintings");
+  const skip = req.params.num;
+  let paintinglist;
+  try {
+    paintinglist = await Painting.find()
+      .sort({ created_date: -1, _id: -1 })
+      .limit(15)
+      .skip(skip);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, Could not find paintings.",
+      404
+    );
+    return next(error);
+  }
+
+  res.status(200).json({ paintingList: paintinglist });
+};
+
 const fetchPaintingByUser = async (req, res, next) => {
   console.log("start fetch by user");
   const param = req.params.uid;
@@ -72,7 +93,7 @@ const fetchPaintingByCategory = async (req, res, next) => {
   console.log(user);
   console.log(condition);
   console.log(skip);
-  const limit = skip ? 5 : 100;
+  const limit = skip ? 15 : 200;
   let painitingList;
   if (user) {
     console.log("try");
@@ -89,12 +110,24 @@ const fetchPaintingByCategory = async (req, res, next) => {
     } catch (err) {
       console.log(err);
     }
-    res.status(200).json({ paintingList: painitingList });
+  } else {
+    try {
+      painitingList = await Painting.find({
+        $and: [{ category: { $regex: condition, $options: "<options>" } }]
+      })
+        .sort({ created_date: -1, _id: -1 })
+        .limit(limit)
+        .skip(skip);
+    } catch (err) {
+      console.log(err);
+    }
   }
+  res.status(200).json({ paintingList: painitingList });
 };
 
 const fetchPaintingByCondition = async (req, res, next) => {
   const param = req.params.content;
+  console.log(param);
   const paramArr = param.split("^");
   const user = paramArr[0];
   const condition = paramArr[1];
@@ -102,7 +135,7 @@ const fetchPaintingByCondition = async (req, res, next) => {
   console.log(user);
   console.log(condition);
   console.log(skip);
-  const limit = skip ? 5 : 100;
+  const limit = skip ? 15 : 100;
   let painitingList;
   if (user) {
     try {
@@ -122,43 +155,86 @@ const fetchPaintingByCondition = async (req, res, next) => {
         .sort({ created_date: -1, _id: -1 })
         .limit(limit)
         .skip(skip);
-      // painitingList = await Painting.find({ name:  { $regex: condition, $options: '<options>' } });
       console.log(painitingList);
     } catch (err) {
       console.log(err);
     }
-    res.status(200).json({ paintingList: painitingList });
+  } else {
+    try {
+      painitingList = await Painting.find({
+        $and: [
+          {
+            $or: [
+              { name: { $regex: condition, $options: "<options>" } },
+              { content: { $regex: condition, $options: "<options>" } },
+              { key_word_1: { $regex: condition, $options: "<options>" } },
+              { key_word_2: { $regex: condition, $options: "<options>" } }
+            ]
+          }
+        ]
+      })
+        .sort({ created_date: -1, _id: -1 })
+        .limit(limit)
+        .skip(skip);
+      console.log(painitingList);
+    } catch (err) {
+      console.log(err);
+    }
   }
+  res.status(200).json({ paintingList: painitingList });
 };
 
 const fetchKeywordGroup = async (req, res, next) => {
   let keywordList = [];
   const uid = req.params.uid;
   console.log(uid);
-  try {
-    let keyword1 = await Painting.aggregate([
-      { $match: { user: ObjectId(uid) } },
-      { $group: { _id: "$key_word_1", count: { $count: {} } } }
-    ]);
-    let keyword2 = await Painting.aggregate([
-      { $match: { user: ObjectId(uid) } },
-      { $group: { _id: "$key_word_2", count: { $count: {} } } }
-    ]);
-    let name = await Painting.aggregate([
-      { $match: { user: ObjectId(uid) } },
-      { $group: { _id: "$name", count: { $count: {} } } }
-    ]);
-    let content = await Painting.aggregate([
-      { $match: { user: ObjectId(uid) } },
-      { $group: { _id: "$content", count: { $count: {} } } }
-    ]);
-    let list = [...keyword1, ...keyword2, ...name, ...content];
-    keywordList = removeDuplicate(list);
-    console.log(keywordList);
-    res.status(200).json({ keywordList: keywordList });
-  } catch (err) {
-    console.log(err);
+  if (uid === 'all') {
+    try {
+      let keyword1 = await Painting.aggregate([
+        { $group: { _id: "$key_word_1", count: { $count: {} } } }
+      ]);
+      let keyword2 = await Painting.aggregate([
+        { $group: { _id: "$key_word_2", count: { $count: {} } } }
+      ]);
+      let name = await Painting.aggregate([
+        { $group: { _id: "$name", count: { $count: {} } } }
+      ]);
+      let content = await Painting.aggregate([
+        { $group: { _id: "$content", count: { $count: {} } } }
+      ]);
+      let list = [...keyword1, ...keyword2, ...name, ...content];
+      keywordList = removeDuplicate(list);
+      console.log(keywordList);
+    } catch (err) {
+      console.log(err);
+    }
+  }else{
+    try {
+      let keyword1 = await Painting.aggregate([
+        { $match: { user: ObjectId(uid) } },
+        { $group: { _id: "$key_word_1", count: { $count: {} } } }
+      ]);
+      let keyword2 = await Painting.aggregate([
+        { $match: { user: ObjectId(uid) } },
+        { $group: { _id: "$key_word_2", count: { $count: {} } } }
+      ]);
+      let name = await Painting.aggregate([
+        { $match: { user: ObjectId(uid) } },
+        { $group: { _id: "$name", count: { $count: {} } } }
+      ]);
+      let content = await Painting.aggregate([
+        { $match: { user: ObjectId(uid) } },
+        { $group: { _id: "$content", count: { $count: {} } } }
+      ]);
+      let list = [...keyword1, ...keyword2, ...name, ...content];
+      keywordList = removeDuplicate(list);
+      console.log(keywordList);
+    } catch (err) {
+      console.log(err);
+    }
   }
+
+  res.status(200).json({ keywordList: keywordList });
 };
 
 const createPainting = async (req, res, next) => {
@@ -455,3 +531,4 @@ exports.fetchKeywordGroup = fetchKeywordGroup;
 exports.fetchPaintingByCategory = fetchPaintingByCategory;
 exports.updatePainting = updatePainting;
 exports.deletePainting = deletePainting;
+exports.fetchAllPlainting = fetchAllPlainting;

@@ -63,6 +63,24 @@ const fetchAllPlainting = async (req, res, next) => {
   res.status(200).json({ paintingList: paintinglist });
 };
 
+const fetchOnePlanint = async (req, res, next) => {
+  console.log("start fetch one paintings");
+  const id = req.params.id;
+  let painting;
+  try {
+    painting = await Painting.findOne({_id : id })
+
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong, Could not find the painting.",
+      404
+    );
+    return next(error);
+  }
+  console.log(painting)
+  res.status(200).json({ painting });
+}
+
 const fetchPaintingByUser = async (req, res, next) => {
   console.log("start fetch by user");
   const param = req.params.uid;
@@ -532,3 +550,4 @@ exports.fetchPaintingByCategory = fetchPaintingByCategory;
 exports.updatePainting = updatePainting;
 exports.deletePainting = deletePainting;
 exports.fetchAllPlainting = fetchAllPlainting;
+exports.fetchOnePlanint = fetchOnePlanint;

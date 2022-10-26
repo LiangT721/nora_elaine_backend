@@ -5,13 +5,13 @@ const { check } = require("express-validator");
 
 const router = Router();
 
-router.get("/", paintingsControllers.fetchPainting);
-router.get("/painting/:id", paintingsControllers.fetchOnePlanint)
+router.get("/landing", paintingsControllers.fetchPainting);
+router.get("/:id", paintingsControllers.fetchOnePlanint)
 router.get("/all/:num", paintingsControllers.fetchAllPlainting);
 router.get("/search/:content", paintingsControllers.fetchPaintingByCondition)
 router.get("/category/:content", paintingsControllers.fetchPaintingByCategory)
 router.get("/keyword/:uid", paintingsControllers.fetchKeywordGroup)
-router.get("/:uid", paintingsControllers.fetchPaintingByUser)
+router.get("/user/:uid", paintingsControllers.fetchPaintingByUser)
 router.patch("/", paintingsControllers.updatePainting)
 router.delete("/", paintingsControllers.deletePainting)
 
